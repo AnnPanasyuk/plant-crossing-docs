@@ -1,69 +1,66 @@
 # Footer Layout
 
-Легкий інформаційний футер присутній на всіх сторінках платформи.
-Не конкурує з контентом — нейтральний фон, мінімальна висота.
+Легкий інформаційний футер. Присутній на всіх сторінках.
+
+---
+
+## Стилі
+
+```css
+padding: 0 40px; /* desktop — однаковий з header і StickyCTA */
+background: transparent; /* успадковує page background */
+```
+
+Внутрішня обгортка `.footer-inner`:
+```css
+border-top: var(--border-size) solid rgba(186,196,184,0.5);
+padding: 36px 0 24px;
+```
+
+Footer bottom:
+```css
+border-top: var(--border-size) solid rgba(186,196,184,0.4);
+padding-top: 14px;
+font-size: 10px;
+color: var(--color-text-secondary);
+```
 
 ---
 
 ## Структура
 
-Три колонки на десктопі, стек на мобайлі:
-[ Лого + опис ]    [ Навігація ]    [ Спільнота ]
-© 2026 PlantCrossing
+Desktop: `grid-template-columns: 1.5fr 1fr 1fr`, `gap: 40px`
+Mobile: одна колонка, секції в стеку
 
 ### Колонка 1 — Бренд
-- Лого
-- Короткий опис: 1-2 речення про платформу
-- Опціонально: іконки соцмереж (після MVP)
+- Logo mark + "PlantCrossing"
+- Короткий опис платформи (1–2 речення)
 
 ### Колонка 2 — Навігація
-- About
-- Contact
-- Terms of Use
-- Privacy Policy
-- Cookies
+- About · Contact · Terms of Use · Privacy Policy · Cookies
 
 ### Колонка 3 — Спільнота
 - Як працює обмін
 - Додати оголошення
-- Онлайн ярмарка (після MVP — посилання неактивне або відсутнє в MVP)
+- Онлайн ярмарка — скоро *(opacity: 0.45)*
+
+### Footer bottom
+`© 2026 PlantCrossing · Зроблено з любов'ю до рослин 🌿`
 
 ---
 
-## Підвал футера
-Повний рядок знизу:
-© 2026 PlantCrossing · Зроблено з любов'ю до рослин 🌿
+## StickyCTA і footer
+
+На сторінці деталей `StickyCTA` — `position: fixed`. Щоб вона не перекривала контент, footer отримує:
+```css
+padding-bottom: calc(60px + 16px);
+```
 
 ---
-
-## Візуальні правила
-
-- Background: `var(--color-base-warm)` — теплий, не білий, не темний
-- Текст: `var(--color-text-primary)` для заголовків колонок
-- Посилання: `var(--color-text-secondary)` default · `var(--color-text-primary)` hover
-- Divider зверху футера: `var(--color-neutral-sand)` 1px
-- Padding top/bottom: `var(--spacing-section)`
 
 ## Що не робимо
 
-- Темний або темно-зелений фон — пригнічує фото рослин вище
-- Великі блоки кольору — футер має бути тихим завершенням сторінки
+- Темний або темно-зелений фон
+- Великі блоки кольору
 - Дублювання головної навігації хедера
-
----
-
-## Адаптивність
-
-| Breakpoint | Поведінка |
-|------------|-----------|
-| Desktop (≥1024px) | Три колонки в ряд |
-| Tablet (768–1023px) | Дві колонки (бренд + навігація), спільнота знизу |
-| Mobile (<768px) | Одна колонка, всі секції в стеку з відступами |
-
----
-
-## Референси
-
-- kindredofireland.com — мінімалістичний, природний тон ✅
-- switch-nails.com — чистий, структурований ✅
-- brunellocucinelli.com — subtle reveal анімація при скролі до футера (розглянути після MVP)
+- Соціальні мережі в MVP

@@ -1,56 +1,53 @@
 # Grid Layout
 
 Базова сіткова система платформи.
-Tailwind v4 використовується для grid/flex wrappers.
-CSS Modules — для компонентів всередині сітки.
+Tailwind v4 — для grid/flex wrappers. CSS Modules — для компонентів всередині сітки.
 
 ---
 
 ## Breakpoints
 
-Breakpoints визначені за **interaction model**, а не тільки за розміром екрану.
+Два breakpoints за **interaction model**:
 
 | Назва | Діапазон | Пристрій | Interaction |
 |-------|----------|----------|-------------|
-| `sm` | < 480px | Мобайл | Touch, без hover |
-| `md` | 480px – 1023px | Планшет | Touch, без hover |
-| `lg` | ≥ 1024px | Десктоп | Mouse, hover, keyboard |
+| `mobile` | < 1024px | Телефон, планшет | Touch, без hover |
+| `desktop` | ≥ 1024px | Десктоп, широкі екрани | Mouse, hover, keyboard |
 
-**Джерело даних:** StatCounter, серпень 2024 – серпень 2025
-https://gs.statcounter.com/screen-resolution-stats
+Планшет входить у mobile-зону — interaction model touch, не mouse.
 
-**Ключові факти:**
-- Мобайл: 59.16% трафіку, CSS viewport 360–430px
-- Планшет: 1.55% трафіку, домінує 768×1024 (iPad)
-- Десктоп: 39.29% трафіку
+**Джерело даних:** StatCounter, серп. 2024 – серп. 2025
+- Mobile+tablet: ~60.7% трафіку
+- Desktop: ~39.3% трафіку
 
 ---
 
-## Поведінкові відмінності по breakpoints
+## Поведінкові відмінності
 
-| Елемент | sm (мобайл) | md (планшет) | lg (десктоп) |
-|---------|-------------|--------------|--------------|
-| Hover ефекти | ❌ | ❌ | ✅ |
-| PlantCardActions | wishlist іконка завжди видима | wishlist іконка завжди видима | reveal на hover |
-| CartDrawer | bottom sheet | bottom sheet | side drawer |
-| FilterButton | sticky внизу | sticky внизу | sticky внизу |
-| FAB (нове оголошення) | ✅ внизу праворуч | ✅ внизу праворуч | ❌ (в хедері) |
-| Анімації | мінімальні | мінімальні | повні |
-| Header пошук | іконка → розгортає інпут | іконка → розгортає інпут | завжди видимий інпут |
-| AccountPopup | bottom sheet | popover | popover |
+| Елемент | mobile | desktop |
+|---------|--------|---------|
+| Hover ефекти | ❌ | ✅ |
+| PlantCardActions | wishlist іконка завжди видима | reveal на hover |
+| CartDrawer | bottom sheet | side drawer |
+| FilterButton | sticky внизу | sticky внизу |
+| FAB (нове оголошення) | ✅ внизу праворуч | ❌ (в хедері) |
+| Анімації | мінімальні | повні |
+| Header пошук | іконка → розгортає інпут | завжди видимий інпут |
+| AccountPopup | bottom sheet | popover |
 
 ---
 
 ## Page Container
 
-Максимальна ширина контенту: `1280px`
-Горизонтальний padding:
+Без `max-width`. Сторінки розтягуються на повну ширину viewport.
+Горизонтальний padding задається на рівні кожної сторінки:
 
 | Breakpoint | Padding |
 |------------|---------|
-| sm | `var(--spacing-page-x)` = 24px |
-| md | 40px |
-| lg | 64px |
+| mobile | `var(--spacing-page-x)` = 24px |
+| desktop | 100px |
+
+Вюпорти керують позицією та функціоналом компонентів, не шириною контейнера.
 
 ---
 
@@ -58,14 +55,13 @@ https://gs.statcounter.com/screen-resolution-stats
 
 | Breakpoint | Колонки | Gap |
 |------------|---------|-----|
-| sm | 2 | 12px |
-| md | 3 | 16px |
-| lg | 4 | 20px |
+| mobile | 2 | 12px |
+| desktop | 4 | 20px |
 
 **Правила:**
-- Картки рівновисокі в межах рядка (align-items: stretch)
-- Фото в картці: фіксований aspect ratio, не розтягується
-- Без горизонтального scroll на будь-якому breakpoint
+- Картки рівновисокі в межах рядка (`align-items: stretch`)
+- Фото в картці: фіксований `aspect-ratio`, не розтягується
+- Горизонтального scroll немає ніде на платформі
 
 ---
 
@@ -73,47 +69,48 @@ https://gs.statcounter.com/screen-resolution-stats
 
 | Breakpoint | Структура |
 |------------|-----------|
-| sm | 1 колонка: фото зверху, деталі знизу |
-| md | 1 колонка |
-| lg | 2 колонки: 45% фото (sticky) / 55% деталі |
+| mobile | 1 колонка: фото зверху, деталі знизу |
+| desktop | 2 колонки: `50%` фото (sticky) / `40%` деталі |
 
 **Правила:**
-- Ліва колонка (фото): sticky тільки на `lg`
-- Gap між колонками: 40px на `lg`
+- Gap між колонками: `16px`
+- Ліва колонка (фото): `position: sticky; top: 68px; z-index: var(--z-sticky)`
+- Права колонка: `margin: 0 auto auto`
+- Висота лівої колонки визначається виключно `aspect-ratio: 1/1` — `height` не задається
 
 ---
 
 ## Spacing система
 
-Базова одиниця: `4px`. Tailwind spacing scale використовується як є.
-
 | Токен | Значення | Використання |
 |-------|----------|--------------|
 | `--spacing-card-pad` | `16px` | Внутрішній відступ картки |
 | `--spacing-section` | `48px` | Відступ між секціями сторінки |
-| `--spacing-page-x` | `24px` | Горизонтальний padding (sm) |
+| `--spacing-page-x` | `24px` | Горизонтальний padding (mobile) |
 
 ---
 
 ## Z-index шари
 
-| Шар | Z-index | Елемент |
-|-----|---------|---------|
-| Base | 0 | Основний контент |
-| Sticky | 10 | Sticky фото колонка |
-| FilterButton | 20 | Sticky фільтр іконка |
-| FAB | 25 | Floating action button |
-| StickyCTA | 30 | Sticky CTA бар знизу |
-| Drawer | 40 | CartDrawer, FilterPopup |
-| Header | 50 | Глобальний хедер |
-| Popup | 60 | AccountPopup, Toast |
-| Overlay | 70 | Backdrop для модалок |
+| Шар | Z-index | Токен | Елемент |
+|-----|---------|-------|---------|
+| Base | 0 | — | Основний контент |
+| Sticky | 10 | `--z-sticky` | Sticky фото колонка (деталі) |
+| FilterButton | 20 | `--z-filter-btn` | Sticky фільтр іконка |
+| FAB | 25 | `--z-fab` | Floating action button |
+| StickyCTA | 30 | `--z-sticky-cta` | Sticky CTA бар знизу |
+| Drawer | 40 | `--z-drawer` | CartDrawer, FilterPopup |
+| Tabs | 45 | `--z-tabs` | Sticky таби профілю |
+| Header | 50 | `--z-header` | Глобальний хедер |
+| Popup | 60 | `--z-popup` | AccountPopup, Toast |
+| Overlay | 70 | `--z-overlay` | Backdrop для модалок |
 
 ---
 
 ## Що не робимо
 
-- Hover ефекти на `sm` і `md` — touch пристрої їх не підтримують
-- Горизонтальний scroll в гріді карток
+- Hover ефекти на mobile — touch пристрої їх не підтримують
+- Горизонтальний scroll — ніде на платформі
 - Фіксована висота карток
-- Side drawer на `sm` і `md` — використовуємо bottom sheet
+- Side drawer на mobile — використовуємо bottom sheet
+- `max-width` на page container

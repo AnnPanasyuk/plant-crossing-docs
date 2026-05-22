@@ -6,113 +6,197 @@
 
 ## Layout
 
-```
+Desktop:
 [ Header ]
-[ Контент: 2 колонки на lg / 1 колонка на sm+md ]
-[ StickyCTA внизу ]
+[ Two-column: PlantGallery 50% sticky | PlantDetails 40% scroll ]
+[ Footer з padding-bottom для StickyCTA ]
+[ StickyCTA fixed ]
+
+Mobile:
+[ Header ]
+[ PlantGallery ]
+[ PlantDetails ]
+[ SimilarListings ]
 [ Footer ]
-```
+[ StickyCTA fixed ]
 
 ---
 
-## Колонки (lg)
+## Page padding
 
-```
-[ PlantGallery 45% sticky ]  [ PlantDetails 55% scroll ]
-                             [ SimilarListings ]
-```
-
-На `sm` і `md`:
-```
-[ Фото ]
-[ PlantDetails ]
-[ SimilarListings ]
-[ StickyCTA ]
-```
+`padding: 0 100px` на desktop. Без `max-width`.
 
 ---
 
 ## Ліва колонка — PlantGallery
 
-**Компонент:** `PlantGallery` використовує `Card` компонент білого типу
+```css
+width: 50%;
+flex-shrink: 0;
+display: flex;
+flex-direction: column;
+position: sticky;
+top: 68px;
+z-index: var(--z-sticky); /* 10 */
+```
 
-**Анатомія:**
-- Головне фото (велике)
-- Thumbnails знизу якщо кілька фото
+### Головне фото
+```css
+aspect-ratio: 1/1;
+border-radius: var(--radius-lg);
+background: var(--color-inverse-muted-3);
+border: var(--border-size) solid var(--color-inverse-muted-4);
+overflow: hidden;
+position: relative;
+```
+Висота визначається виключно `aspect-ratio: 1/1` — `height` не задається.
 
-**Правила:**
-- Sticky на `lg` — залишається у viewport поки скролиться права колонка
-- На `sm`/`md`: статична, фото вгорі сторінки
-- Object-fit: cover, фіксований aspect ratio
+### Лічильник
+```css
+position: absolute;
+top: 12px; left: 14px;
+background: rgba(0,0,0,0.22);
+backdrop-filter: blur(6px);
+border-radius: var(--radius-full);
+padding: 3px 9px;
+font-size: 11px; color: rgba(255,255,255,0.85);
+```
+
+### Thumbnails
+Розташовані поверх фото, абсолютно позиціоновані горизонтально внизу:
+```css
+position: absolute;
+bottom: 12px;
+left: 50%;
+transform: translateX(-50%);
+display: flex;
+gap: 6px;
+z-index: 2;
+backdrop-filter: blur(4px);
+```
+
+Розмір кожного thumb:
+ширина = (ширина головного фото - горизонтальні padding'и) / кількість
+aspect-ratio: 1/1  /* height не задається */
+border-radius: var(--radius-sm)
+
+| Breakpoint | Кількість thumbs |
+|------------|-----------------|
+| desktop | максимум 5 |
+| mobile | 3 |
+
+Active thumb:
+```css
+border: 2px solid #fff;
+box-shadow: 0 0 0 1px var(--color-accent-main);
+```
 
 ---
 
 ## Права колонка — PlantDetails
 
-**Компонент:** `PlantDetails`
+```css
+width: 40%;
+min-width: 40%;
+margin: 0 auto auto;
+display: flex;
+flex-direction: column;
+gap: 16px;
+```
 
-**Анатомія (зверху вниз):**
-1. `BackButton` — ← Назад до каталогу, використовує `Button ghost`.
-2. **Компонент:** `InfoCard` використовує `Card` компонент білого типу
-   - Назва рослини (`text-2xl`, `font-semibold`)
-   - Ціна або мітка "Тільки обмін"
-   - `Tags` — Локація та Категорія
-3. **Компонент:** `ActionCard` використовує `Card` компонент рожевого типу
-   **Layout:**
-   ```
-   [ Купити ] [ Додати до списку бажань ]
-   [         Запропонувати обмін        ]
-   [                 Label              ]
-   ```
-   Кнопки дій:
-   - `Button white` — Купити
-   - `Button secondary` — Додати до списку бажань
-   - `Button white` — Запропонувати обмін
-   - Label — Обмін — безкоштовно. Ви пропонуєте свою рослину, продавець розглядає і приймає рішення.
-4. **Компонент:** `InstructionCard` використовує `Card` компонент білого типу — Характеристики:
-    - Іконка поливу + опис (soil-state-based)
-    - Іконка складності догляду + рівень
-    - Горщик:
-        - Діаметр горщика
-        - Висота рослини з горщиком
-    - Стан рослини + `StatusLabel`
-5. **Компонент:** `DescriptionCard` використовує `Card` компонент білого типу:
-   - Опис від продавця
-   - AI-згенерований текст догляду з підписом внизу — згенеровано AI
-6. **Компонент:** `SellerCard` використовує `Card` компонент білого типу — Інфо про продавця:
-    - `Avatar` + ім'я + місто
-    - Кількість оголошень продавця
-    - Номер телефону
-    - Кнопка "Інші оголошення продавця"
-    - Інтегрована гугл локація
-7. **Компонент:** `SimilarListings`
-    - Заголовок: "Схожі оголошення"
-    - Горизонтальний scroll 2 ряди з `PlantCard`, кількість в залежності від ширини екрану
+### 1. BackButton
+```css
+width: calc(33.333%); /* 1/3 від ширини колонки */
+```
+Variant: `ghost`. Текст: `← Назад до каталогу`.
+Замінює breadcrumbs — структура платформи плоска.
 
-   
-**Правила:**
-- Breadcrumbs відсутні — замінені на `BackButton`
-- Полив: завжди soil-state-based
-    - ✅ "Поливайте коли верхній шар ґрунту (2-3 см) висох"
-    - ❌ "Поливайте кожні 3 дні"
-- Телефон продавця показується тільки зареєстрованим користувачам
-- Кнопки Swap і Wishlist без логіну → тригерять `AccountPopup`
-- Кнопка купити без логіну → тригерять `BasketPopup`
+### 2. InfoCard `card-white`
+- Назва: `font-size: 20px; font-weight: 500`
+- Latin: `font-size: 12px; color: var(--color-text-secondary); font-style: italic`
+- Теги: компонент `Tag` (Місто, Indoor тощо)
+- Характеристики під тегами, **порядок зверху вниз:**
+   1. Стан (`condition-badge` зелений)
+   2. Горщик (діаметр + висота рослини)
+   3. Складність догляду
+   4. Полив — завжди soil-state: `"Коли верхній шар ґрунту (2–3 см) підсох"`, ніколи не частота
+
+Кожен рядок: іконка 22×22px (accent bg) · ключ (flex: 0 0 80px) · значення
+
+### 3. ActionCard `card-pink`
+[ 850 грн ]         ← font-size: 26px; font-weight: 500; color: #fff
+[ або обмін ]       ← font-size: 12px; color: inverse-muted-4
+[ Button white "Придбати" (3fr) ] [ Button secondary "♡ Вішліст" (2fr) ]
+[ Button secondary full "⇄ Запропонувати обмін" ]
+[ swap-label: підказка як працює обмін ]
+
+### 4. DescriptionCard `card-white`
+- `section-label` "Від продавця" + текст продавця
+- Divider
+- `section-label` "Догляд" + AI-згенерований текст
+- `Tag inverse` "згенеровано AI" після тексту
+
+### 5. SellerCard `card-white`
+- `section-label` "Продавець"
+- Avatar (36px, круглий) + `@handle` + мета (місто · кількість оголошень)
+- Телефон (тільки для авторизованих)
+- `Button ghost` "Інші оголошення продавця" — `width: fit-content`
+- Карта локації: схематичний блакитний градієнт, `height: 200px`, `border-radius: var(--radius-md)`, пін з районом і містом
+
+### 6. SimilarListings
+- `section-label` "Схожі оголошення"
+- Grid: `grid-template-columns: repeat(4, 1fr); gap: 10px`
+- 2 ряди (8 карток)
+- Без горизонтального scroll
 
 ---
 
 ## StickyCTA
 
-**Компонент:** `StickyCTA` використовує `Card` компонент білого типу
+Самостійний компонент, не картка.
 
-**Анатомія:** Назва рослини · `Button lg primary` "Купити" · `Button lg white` "Запропонувати обмін"
+```css
+position: fixed;
+bottom: 0; left: 0; right: 0;
+z-index: var(--z-sticky-cta); /* 30 */
+padding: 12px 40px 16px;
+background: linear-gradient(to top, #E8EBE8 70%, rgba(232,235,232,0) 100%);
+border-top: var(--border-size) solid var(--color-inverse-muted-4);
+box-shadow: var(--shadow-sticky);
+/* без backdrop-filter */
+```
 
-**Правила:**
-- Position: fixed bottom, поверх контенту
-- Z-index: 30 (див. `layout/grid.md`)
-- Показується після того як основні кнопки дій виходять з viewport при скролі
-- На `sm`: кнопки на повну ширину, стек або ряд залежно від довжини тексту
+Анатомія:
+[ .sticky-name-block flex:1 ]          [ Button white ] [ Button primary ]
+Monstera Deliciosa                    ⇄ Запропонувати   Придбати · 850 грн
+Thai Constellation (italic, secondary, 12px)
 
+- Назва: `font-size: 14px; font-weight: 500; color: var(--color-text-primary)`
+- Latin: `font-size: 12px; font-weight: 400; color: var(--color-text-secondary); font-style: italic`
+- Footer отримує `padding-bottom: calc(60px + 16px)` для компенсації
+
+---
+
+## Button tokens (єдиний розмір)
+
+```css
+--btn-padding: 8px 14px;
+--btn-font-size: var(--font-size-m); /* 14px */
+--btn-radius: var(--radius-full);
+font-weight: 400; /* для всіх variant, крім primary */
+```
+
+| Кнопка | Variant |
+|--------|---------|
+| Назад до каталогу | ghost |
+| Придбати | white |
+| Вішліст | secondary |
+| Запропонувати обмін (ActionCard) | secondary |
+| Інші оголошення продавця | ghost |
+| StickyCTA обмін | white |
+| StickyCTA придбати | primary |
+
+---
 
 ## Авторизація
 
@@ -120,7 +204,7 @@
 |-----|-----------|-----------|
 | Перегляд деталей | ✅ | ✅ |
 | Wishlist | клік → AccountPopup | ✅ |
-| Купити | клік → AccountPopup при checkout | ✅ |
+| Купити | AccountPopup при checkout | ✅ |
 | Запропонувати обмін | клік → AccountPopup | ✅ |
 
 ---
@@ -130,17 +214,17 @@
 | Стан | Поведінка |
 |------|-----------|
 | Завантаження | Skeleton для галереї і деталей |
-| Товар є в наявності | Стандартний вигляд |
-| Конфлікт stock | Toast з попередженням при checkout |
-| Оголошення не знайдено | EmptyState з кнопкою "До каталогу" |
+| Товар є | Стандартний вигляд |
+| Конфлікт stock | Toast при checkout |
+| Не знайдено | EmptyState + кнопка "До каталогу" |
 
 ---
 
 ## SEO
 
-- Server-side rendering (Next.js App Router)
+- SSR (Next.js App Router)
 - Title: `{Назва рослини} — PlantCrossing`
-- Meta description: перші 160 символів опису рослини
+- Meta description: перші 160 символів опису
 - OG image: головне фото рослини
 
 ---
@@ -149,5 +233,8 @@
 
 - Breadcrumbs
 - Частота поливу ("кожні X днів")
-- Показувати телефон продавця незареєстрованим користувачам
-- Hover ефекти на `sm` і `md`
+- Телефон продавця для неавторизованих
+- Hover ефекти на mobile
+- Кількість в наявності — прихована до конфлікту при checkout
+- `max-width` на page container
+- Горизонтальний scroll
