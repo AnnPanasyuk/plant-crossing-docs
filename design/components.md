@@ -234,21 +234,74 @@ Selectable елемент для фільтрів і категорій.
 ## Картка товару
 
 ### PlantCard
-Основна картка оголошення в каталозі.
+
+Основна картка оголошення. Один компонент — використовується в каталозі
+та блоці схожих оголошень, адаптується через container queries.
 
 **Анатомія (зверху вниз):**
-1. Фото рослини (aspect ratio 4:3 або 1:1, object-fit: cover)
+1. Фото (`aspect-ratio: 1/1`, `object-fit: cover`)
+   — wishlist кнопка `absolute top-right`, frosted glass, завжди видима
 2. Назва рослини
-3. Ціна / мітка "Обмін"
-4. Іконки характеристик: освітлення · полив · складність догляду
-5. PlantCardActions (hover reveal на десктопі)
+3. Ціна (`--color-text-accent`) або "Обмін" (`--color-text-swap`)
+4. Місто (`#A89E88` — теплий беж, світліший за `--color-text-secondary`)
+5. Footer — один елемент, пріоритет залежить від контексту:
+    - категорія задана фільтром → тег рівня догляду (Easy / Medium / Hard)
+    - всі рослини → тег категорії (Indoor / Сукулент / …)
+    - статус `RESERVED` → `ListingStatusInline` замість тегу
 
-**Правила:**
-- Border radius: `var(--radius-lg)`
-- Shadow: `var(--shadow-card)`
-- Hover shadow: `var(--shadow-card-hover)`
-- Watercolor texture — ніколи на картці
-- UI не конкурує з фото рослини
+**Стани картки:**
+
+| Стан | Фото | Footer | Opacity |
+|------|------|--------|---------|
+| `ACTIVE` + ціна | звичайне | тег | 1 |
+| `ACTIVE` + обмін | звичайне | тег | 1 |
+| `RESERVED` | opacity 0.68 | `ListingStatusInline` | 0.82 |
+| Skeleton | shimmer анімація | shimmer рядок | — |
+| Фото error | заглушка з іконкою | тег | 1 |
+
+**Wishlist кнопка:**
+- Завжди видима (і mobile, і desktop) — `absolute top-right`
+- Frosted glass: `rgba(255,255,255,0.55)` + `backdrop-filter: blur(8px) saturate(1.4)`
+- Border: `0.5px solid rgba(255,255,255,0.75)`
+- Active стан: `fill: var(--color-text-accent)` на іконці серця
+- Hover: `scale(1.18)`, `transition: 120ms var(--easing-spring)`
+
+**Hover стан картки** (тільки `@media (hover: hover)`):
+- `transform: translateY(-2px)`
+- `background: rgba(255,255,255,0.68)` (світлішає)
+- `border-color: rgba(255,255,255,0.92)`
+- Без `box-shadow`
+- `transition: 200ms var(--easing-base)`
+
+**Адаптивність через container queries:**
+- Батько (`CatalogGrid`, `SimilarListings`) отримує `container-type: inline-size`
+- `@container (max-width: 180px)` — compact: менший padding і font-size
+- `@container (max-width: 140px)` — мінімум: тег і місто приховані
+- Компонент не знає де рендериться — адаптується автоматично
+
+**Контексти використання:**
+
+| Контекст | Колонок | Gap | Особливості |
+|----------|---------|-----|-------------|
+| Каталог desktop | 6 | 16px | базовий розмір |
+| Каталог mobile | 2 | 12px | compact через container |
+| Схожі оголошення | 4 | 14px | `max-width: 50%` від viewport |
+
+**Фікс стрибка при hover:**
+- `.card { overflow: visible; will-change: transform }` — не `hidden`
+- `.photo { overflow: hidden; border-radius: var(--radius-lg) var(--radius-lg) 0 0 }`
+- `overflow: hidden` на батьку тригерить layout pass при `transform` — тому переноситься на `.photo`
+
+**Файли:**
+- `components/PlantCard/PlantCard.module.css` — токени на `.card {}`, стилі, container queries
+- `components/CatalogGrid/CatalogGrid.module.css` — `container-type: inline-size`
+- `components/SimilarListings/SimilarListings.module.css` — `container-type: inline-size`
+
+**Що не робимо:**
+- `box-shadow` на hover
+- `overflow: hidden` на `.card`
+- Більше одного тега в footer
+- Hover ефекти на touch (`@media (hover: none)` скидає всі hover стани)
 
 ---
 
@@ -310,13 +363,15 @@ Sticky бар знизу сторінки деталей, поверх конт�
 ---
 
 ### SimilarListings
-Блок схожих оголошень під основним контентом сторінки деталей.
+Блок схожих оголошень під правою колонкою сторінки деталей.
 
-**Вигляд:** горизонтальний scroll ряд з PlantCard компонентами
+**Вигляд:** грід 4 колонки, `max-width: 50%` (відповідає ширині правої колонки деталей)
 
 **Правила:**
-- Показується нижче правої колонки після завершення скролу деталей
 - Заголовок секції: "Схожі оголошення"
+- `container-type: inline-size` — картки адаптуються до compact розміру автоматично
+- Той самий `PlantCard` компонент що і в каталозі
+
 
 ---
 

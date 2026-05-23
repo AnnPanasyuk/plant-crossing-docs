@@ -32,20 +32,51 @@
 ## Компоненти — анімації
 
 ### PlantCard
+
 ```css
-/* hover тільки на lg */
-.card {
-  box-shadow: none;
-  transition: box-shadow var(--duration-base) var(--easing-base),
-              transform var(--duration-base) var(--easing-base);
+/* hover тільки на desktop */
+@media (hover: hover) {
+  .card:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.68);
+    border-color: rgba(255, 255, 255, 0.92);
+    /* без box-shadow */
+  }
 }
-.card:hover {
-  box-shadow: var(--shadow-card-hover);
-  transform: translateY(-2px);
+
+/* скидаємо на touch щоб не залипав */
+@media (hover: none) {
+  .card:hover {
+    transform: none;
+    background: var(--card-bg);
+    border-color: var(--card-border);
+  }
+}
+
+.card {
+  transition: transform var(--duration-base) var(--easing-base),
+              background var(--duration-base) var(--easing-base),
+              border-color var(--duration-base) var(--easing-base);
+  overflow: visible;       /* не hidden — уникаємо layout pass при transform */
+  will-change: transform;  /* compositor layer заздалегідь */
+}
+
+/* overflow тільки на фото, не на картці */
+.photo {
+  overflow: hidden;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+/* wishlist — spring scale */
+.wishlist:hover {
+  transform: scale(1.18);
+  transition: transform var(--duration-fast) var(--easing-spring);
 }
 ```
-- Без border — тільки box-shadow на hover
-- `translateY(-2px)` — легкий підйом картки
+
+- Без `box-shadow` на hover — фон світлішає замість тіні
+- `overflow: hidden` на `.card` тригерить layout pass при `transform` — переноситься на `.photo`
+- `will-change: transform` прибрати після підтвердження плавності в браузері
 
 ---
 
