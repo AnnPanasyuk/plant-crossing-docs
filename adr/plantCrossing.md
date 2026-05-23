@@ -32,3 +32,12 @@ This document captures the key architectural decisions made during the developme
 * **Alternatives:** AWS (EC2/S3/Amplify), DigitalOcean (Droplets).
 * **Rationale:** Managing a VPS or complex AWS configuration takes time away from product development. Vercel handles the infrastructure layer, allowing focus on business logic.
 * **Competitive advantages:** Zero-config CI/CD. Preview Deployments — automatic creation of isolated test environments for every Pull Request — radically accelerates feature testing without risk to production.
+
+### 7. State Management: Zustand + TanStack Query
+* **Alternatives:** Redux Toolkit, React Context + useState, Jotai.
+* **Rationale:** Стан розділено на три чіткі шари з різними інструментами:
+  — Server Components — серверний статичний стан (каталог, деталі, профіль) без будь-яких бібліотек.
+  — Zustand — глобальний UI стан: кошик з `persist` middleware (виживає після перезавантаження), wishlist count badge, drawer/popup стани.
+  — TanStack Query — динамічний серверний стан: polling статусу обміну (10s interval), оптимістичні апдейти wishlist.
+  Redux відхилено як overkill — App Router з Server Components вирішує серверний стан без стору.
+* **Rollout:** Zustand додається в Phase 2 (Core MVP). TanStack Query — в Phase 3 (Swap flow), коли з'являється потреба в polling і оптимістичних апдейтах.
