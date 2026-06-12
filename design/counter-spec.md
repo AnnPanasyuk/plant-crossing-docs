@@ -8,10 +8,10 @@
 
 ## Дизайн (затверджено)
 
-- Один розмір: **16×16px**, коло (`border-radius: 50%`)
+- Один розмір: **14×14px**, коло (`border-radius: 50%`)
 - `font-size: 8px`, `font-weight: 600`
 - Background: `var(--color-accent-main)`, текст: `var(--color-inverse)`
-- Border: `1.5px solid var(--color-base-bg-2)` (як зараз)
+- Border: `box-shadow: 0 0 0 1.5px var(--color-base-bg-2)` (без `inset` — кільце малюється за межами 14×14, видимий діаметр ~17px, layout-розмір залишається 14×14)
 - Значення: число `0–99`. Двозначні числа — без спецобробки, без `max`/`"99+"`
 - Без станів/варіантів — компонент завжди виглядає однаково
 - `aria-hidden="true"` — текстове значення семантично озвучує батьківський компонент через власний `aria-label`
@@ -24,13 +24,13 @@
 
 ```css
 /* === COUNTER === */
---counter-size:        16px;
+--counter-size:        14px;
 --counter-font-size:   8px;
 --counter-font-weight: 600;
 --counter-radius:      50%;
 --counter-bg:          var(--color-accent-main);
 --counter-color:       var(--color-inverse);
---counter-border:      1.5px solid var(--color-base-bg-2);
+--counter-box-shadow:  0 0 0 1.5px var(--color-base-bg-2);
 ```
 
 Старі токени (`--counter-s-size`, `--counter-s-font-size`, `--counter-s-font-weight`, `--counter-s-radius`, `--counter-s-bg`, `--counter-s-color`, `--counter-m-size`, `--counter-m-font-size`, `--counter-m-font-weight`, `--counter-m-radius`, `--counter-m-bg`, `--counter-m-color`) — видалити, ніде більше не використовуються.
@@ -64,7 +64,7 @@ export interface CounterProps {
   color: var(--counter-color);
   font-size: var(--counter-font-size);
   font-weight: var(--counter-font-weight);
-  border: var(--counter-border);
+  box-shadow: var(--counter-box-shadow);
   line-height: 1;
   font-family: 'Inter', sans-serif;
 }
