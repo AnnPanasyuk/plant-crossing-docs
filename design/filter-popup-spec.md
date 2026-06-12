@@ -84,7 +84,7 @@ components/
       FilterPopup/
         FilterPopup.tsx          — Radix Dialog shell, оркестрація кроків, стан
         FilterPopup.module.css   — стилі попапу, progress bar, header, footer
-        FilterStep.tsx           — один крок: title + info + body slot
+        FilterStep.tsx           — один крок: title + info + body slot + footer
         FilterStep.module.css    — стилі кроку
       CatalogFilters/
         CatalogFilters.tsx       — FilterButton + FilterPopup разом
@@ -110,16 +110,16 @@ components/
 ## Структура попапу
 
 ```
-┌─────────────────────────────────────────────────┐
-│  [■ ■ □ □ □ □]                             [×]  │  ← progress-row
-│                                                  │
-│  Назва кроку  ⓘ                                 │  ← header
-│                                                  │
-│  [body: chips або inputs]                        │  ← body
-│                                                  │
-│  [←]   [Показати результати (N)]   [→]           │  ← footer mid-step
-│  [←]   ↺ Скинути все   [Показати результати (N)] │  ← footer last-step
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│  [■ ■ □ □ □ □]                                      [×]   │  ← progress-row
+│                                                            │
+│  Назва кроку  ⓘ                                           │  ← header
+│                                                            │
+│  [body: chips або inputs]                                 │  ← body
+│                                                            │
+│  [←]  Пропустити      [Показати результати (N)]    [→]    │  ← footer, кроки 1–5
+│  [←]  ↺ Скинути все   [Показати результати (N)]    [→]⃠   │  ← footer, крок 6 (→ disabled)
+└──────────────────────────────────────────────────────────┘
 ```
 
 Ширина: `660px`. `border-radius: var(--radius-xl)` = 24px. `box-shadow: var(--shadow-drawer)`.
@@ -195,37 +195,56 @@ color:      #fff
 
 ## Footer
 
-```
-padding:      10px 20px 16px
-border-top:   0.5px solid rgba(122,136,120,0.10)
-display:      flex
-align-items:  center
-```
-
-### Mid-step (кроки 1–5)
+Уніфікована структура на **всіх 6 кроках** — один layout, без окремих mid-step / last-step варіантів:
 
 ```
-justify-content: space-between
+padding:         10px 20px 16px
+border-top:      0.5px solid rgba(122,136,120,0.10)
+display:         flex
+align-items:     center
+gap:             8px
 ```
 
-| Позиція | Елемент | Примітки |
-|---------|---------|---------|
-| Left | `<Button variant="ghost" size="sm" iconLeft={<ChevronLeft />} />` | `disabled` на кроці 1 |
-| Center | `<Button variant="primary" size="md">Показати результати (N)</Button>` | `flex: 1`, `margin: 0 8px` |
-| Right | `<Button variant="ghost" size="sm" iconLeft={<ChevronRight />} />` | завжди active |
-
-### Last-step (крок 6)
-
-Без правої навігаційної кнопки.
-
 ```
-gap: 8px
+[nav-left]  [middle-button]  [CTA "Показати результати (N)", flex: 1]  [nav-right]
 ```
 
-| Позиція | Елемент |
-|---------|---------|
-| Left (flex: 1) | `<Button variant="ghost" size="sm" iconLeft={<ChevronLeft />} />` + `<Button variant="ghost" size="sm" iconLeft={<RotateCcw />}>Скинути все</Button>` |
-| Right | `<Button variant="primary" size="md">Показати результати (N)</Button>` |
+| Слот | Елемент | Кроки 1–5 | Крок 6 (`isLast`) |
+|------|---------|-----------|---------------------|
+| nav-left | `<Button variant="ghost" size="sm" iconLeft={<ChevronLeft />} />` | enabled (`disabled` на кроці 1 / `isFirst`) | enabled |
+| middle | див. нижче | "Пропустити" | "↺ Скинути все" |
+| CTA | `<Button variant="primary" size="md" />`, `flex: 1` | "Показати результати (N)" | "Показати результати (N)" |
+| nav-right | `<Button variant="ghost" size="sm" iconLeft={<ChevronRight />} />` | enabled | **disabled** (`isLast`) |
+
+### Disabled states
+
+- `nav-left`: `disabled` тільки коли `isFirst === true` (`opacity: 0.3; pointer-events: none`)
+- `nav-right`: `disabled` тільки коли `isLast === true`. Кнопка **лишається в DOM** (не прибирається, як було в v2) — для візуальної симетрії footer.
+
+### Middle-button
+
+Перемикається залежно від `isLast`:
+
+```tsx
+{isLast ? (
+  <Button variant="ghost" size="sm" iconLeft={<RotateCcw />} onClick={onResetAll}>
+    Скинути все
+  </Button>
+) : (
+  <Button variant="plain" size="sm" onClick={onSkip}>
+    Пропустити
+  </Button>
+)}
+```
+
+### "Пропустити" vs nav-right "→"
+
+Дублювання дії — **навмисне**:
+
+- **"Пропустити"** (middle, текстова кнопка, кроки 1–5) — UX-сигнал "за цим параметром можна не фільтрувати", знімає тривогу обов'язкового вибору на кожному кроці.
+- **"→"** (nav-right, іконка, завжди) — компактна навігація для тих, хто вже зрозумів флоу.
+
+Обидві кнопки виконують **однаковий** перехід: крок → крок+1, без зміни selection поточного кроку. Якщо колись постане питання прибрати дублювання — прибирається `→`, а не "Пропустити".
 
 ---
 
@@ -261,16 +280,19 @@ type FilterState = {
 
 ```tsx
 type FilterStep = {
-  stepIndex:  number           // 0-based
-  totalSteps: number
-  title:      string
-  tooltip?:   ReactNode
-  children:   ReactNode        // body slot
+  stepIndex:   number           // 0-based
+  totalSteps:  number
+  isFirst:     boolean          // stepIndex === 0
+  isLast:      boolean          // stepIndex === totalSteps - 1
+  title:       string
+  tooltip?:    ReactNode
+  children:    ReactNode        // body slot
   resultCount: number
-  onBack:     () => void
-  onNext?:    () => void       // undefined на останньому кроці
-  onReset:    () => void       // тільки на останньому кроці
-  onClose:    () => void
+  onBack:      () => void       // nav-left: крок-1, без зміни selection. disabled якщо isFirst
+  onSkip:      () => void       // "Пропустити" / nav-right: крок+1, без зміни selection. nav-right disabled якщо isLast
+  onResetAll:  () => void       // "Скинути все" (тільки isLast) — глобальний reset усього FilterState
+  onSubmit:    () => void       // "Показати результати" — submit поточного FilterState + close, на будь-якому кроці
+  onClose:     () => void       // × / backdrop
 }
 ```
 
@@ -326,12 +348,14 @@ Radix Dialog Portal. `data-state` керує анімацією overlay:
 
 ## Поведінка
 
-- Натиск на `×` або backdrop → закриття без збереження змін
-- `←` на кроці 1 → disabled (`opacity: 0.3`, `pointer-events: none`)
-- `→` завжди активна якщо є наступний крок
-- "Скинути все" → скидає `FilterState` до початкового стану, залишається на кроці 6
-- "Показати результати (N)" → закриває popup, застосовує фільтри, оновлює каталог
-- `N` у кнопці оновлюється реактивно при зміні будь-якого фільтру (debounce 300ms)
+- Натиск на `×` або backdrop → закриття без збереження змін.
+- `←` (nav-left) → `disabled` тільки на кроці 1 (`isFirst`). Інакше — крок-1, без зміни selection.
+- `→` (nav-right) → `disabled` тільки на кроці 6 (`isLast`), залишаючись у DOM. Інакше — крок+1, без зміни selection (дія ідентична "Пропустити").
+- "Пропустити" (кроки 1–5, middle-слот) → крок+1, без зміни selection поточного кроку. UX-підказка: цей фільтр можна не заповнювати.
+- "Скинути все" (тільки крок 6, middle-слот) → **глобальний** reset `FilterState` до початкового стану (усі 6 кроків, не лише поточний), залишається на кроці 6, `N` перераховується синхронно без "мигання".
+- "Показати результати (N)" → submit поточного `FilterState` + close popup. **Ідентична поведінка з будь-якого з 6 кроків** — не "зберегти стан і перейти далі".
+- Модель даних: відсутність вибраного chip / порожній input на кроці = "без обмеження за цим параметром", а НЕ "застосувати всі варіанти цього параметра".
+- `N` у кнопці оновлюється реактивно при зміні будь-якого фільтру (debounce 300ms).
 
 ---
 
@@ -343,3 +367,4 @@ Radix Dialog Portal. `data-state` керує анімацією overlay:
 - Кастомні chip-елементи замість `<Chip>` з `ui/`
 - Inline styles в TSX
 - `border: var(--border-size)` на info іконці — тільки `variant="plain"`
+- Окремі `--mid` / `--last` варіанти footer (v2) — замінено на єдину структуру

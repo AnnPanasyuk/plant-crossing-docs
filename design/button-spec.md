@@ -130,15 +130,16 @@ Ghost loading: shimmer через `::after` з `position: absolute; inset: 0; ov
 ---
 
 ### Plain
-Tertiary-дія без візуального навантаження. "Пропустити крок", "Скинути фільтр".  
+
+Tertiary-дія без візуального навантаження. "Пропустити крок", "Скинути фільтр", закрити попап, видалити айтем з кошика.
 Не має loading і failure станів.
 
-| Стан     | background                     | color                          | box-shadow                              |
-|----------|--------------------------------|--------------------------------|-----------------------------------------|
-| default  | `transparent`                  | `--color-text-secondary`       | —                                       |
-| hover    | `rgba(122,136,120,.08)`        | `#5A6858`                      | —                                       |
-| focus    | `transparent`                  | `--color-text-secondary`       | `0 0 0 2px rgba(122,136,120,.25)`       |
-| disabled | `transparent`                  | `rgba(122,136,120,.38)`        | —                                       |
+| Стан     | background    | color                     | box-shadow                            |
+|----------|----------------|---------------------------|----------------------------------------|
+| default  | `transparent`  | `--color-text-secondary`  | —                                      |
+| hover    | `transparent`  | `--color-text-accent`     | —                                      |
+| focus    | `transparent`  | `--color-text-accent`     | `0 0 0 2px var(--color-accent-deep)`   |
+| disabled | `transparent`  | `rgba(122,136,120,.38)`   | —                                      |
 
 ---
 
@@ -208,12 +209,11 @@ Loading: `color: transparent` — ховає текст зберігаючи р�
 --btn-danger-failure-bg:        var(--color-error-muted);
 --btn-danger-failure-color:     var(--color-error-primary);
 
---btn-plain-color:              var(--color-text-secondary);
---btn-plain-hover-bg:           rgba(122,136,120,.08);
---btn-plain-hover-color:        #5A6858;
---btn-plain-focus-color:        var(--color-text-secondary);
---btn-plain-focus-box-shadow:   0 0 0 2px rgba(122,136,120,.25);
---btn-plain-disabled-color:     rgba(122,136,120,.38);
+--btn-plain-color:               var(--color-text-secondary);
+--btn-plain-hover-color:          var(--color-text-accent);
+--btn-plain-focus-color:          var(--color-text-accent);
+--btn-plain-focus-box-shadow:     0 0 0 2px var(--color-accent-deep);
+--btn-plain-disabled-color:       rgba(122, 136, 120, .38);
 ```
 
 ---
