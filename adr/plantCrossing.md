@@ -1,5 +1,5 @@
 # Plant Crossing: Architecture Decision Records (ADR)
-**Last updated:** April 22, 2026
+**Last updated:** June 13, 2026
 
 This document captures the key architectural decisions made during the development of the Plant Crossing platform. Technology choices are based on requirements for reliability, time-to-market, and the need to build a scalable ecosystem.
 
@@ -13,10 +13,10 @@ This document captures the key architectural decisions made during the developme
 * **Rationale:** The core of the platform is the asset exchange mechanic (plants) between users. This requires strict transactional guarantees (ACID). If an exchange is interrupted, data must be guaranteed to roll back.
 * **Competitive advantages:** The `JSONB` type allows storing dynamic characteristics of unique plants without breaking the rigid relational structure of users and transactions.
 
-### 3. ORM: Prisma
-* **Alternatives:** Drizzle ORM, TypeORM.
-* **Rationale:** Development speed is the primary constraint given the 6-week timeline. Prisma provides a superior developer experience: auto-generated types from schema, an intuitive query API, and a mature migration toolchain (`prisma migrate dev`). The original concern about cold start latency on Edge Functions is not relevant — API routes with DB access run on standard Node.js serverless runtime, not Edge.
-* **Competitive advantages:** Fastest path from schema to working queries. Prisma Studio for visual DB inspection during development. The `@prisma/adapter-neon` resolves connection pooling on Vercel serverless without cold start penalties.
+### 3. ORM: Drizzle ORM
+* **Alternatives:** Prisma, TypeORM.
+* **Rationale:** Drizzle generates lighter, more predictable SQL with no runtime query engine — critical for serverless cold starts on Vercel. Schema-as-code in TypeScript gives full type inference without a separate generation step. `drizzle-kit` covers migrations (generate/migrate/studio) with less abstraction overhead than Prisma's migration toolchain.
+* **Competitive advantages:** No binary query engine to bundle — smaller deployment size, faster cold starts on Vercel serverless. Direct SQL-like query builder keeps full control over generated queries. Native Neon HTTP driver support (`db/index.ts` exports `db` via Drizzle + Neon HTTP driver).
 
 ### 4. Image Storage: Vercel Blob
 * **Alternatives:** Cloudflare R2, Supabase Storage, AWS S3.
