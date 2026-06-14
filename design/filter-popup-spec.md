@@ -128,14 +128,15 @@ components/
 
 ## Progress bar
 
-Рядок з 6 сегментів (`height: 2px`, `border-radius: full`, `gap: 4px`).
+Компонент `StepProgress` (`components/ui/StepProgress`) — тип `fill`:
 
-- **Пройдені + поточний** → `background: var(--color-accent-main)`
-- **Майбутні** → `background: rgba(122,136,120,0.18)`
+```tsx
+<StepProgress type="fill" totalSteps={6} currentStep={step} ariaLabel="Крок фільтру" />
+```
 
-Прогрес заповнюється вперед при переході на наступний крок, скорочується при поверненні назад.
+Розмітку сегментів вручну не дублювати. Структура (`height: 2px`, `border-radius: full`, `gap: 4px`) і кольори керуються токенами `--progress-*` / `--step-progress-fill-*` у `globals.css`. У типі `fill` пройдені + поточний сегменти заповнені однаковим кольором (`--color-accent-main`), майбутні — приглушені; прогрес заповнюється вперед при переході на наступний крок і скорочується при поверненні назад.
 
-Кнопка закриття `×` (28×28px, circle, `border: 0.5px solid rgba(122,136,120,0.25)`) — в одному flex-рядку з progress dots, `margin-left: 8px`.
+Кнопка закриття `×` (28×28px, circle, `border: 0.5px solid rgba(122,136,120,0.25)`) — в одному flex-рядку зі `StepProgress`, `margin-left: 8px`.
 
 ```
 padding: 18px 20px 0
