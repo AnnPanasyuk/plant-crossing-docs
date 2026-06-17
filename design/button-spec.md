@@ -61,7 +61,7 @@ Icon-only: `padding: 9px` (md), квадратна форма.
 Головна дія. На page-bg.
 
 | Стан     | background                                             | color                        | box-shadow                              |
-|----------|--------------------------------------------------------|------------------------------|-----------------------------------------|
+|----------|----------------------------------------------------------|------------------------------|-----------------------------------------|
 | default  | `linear-gradient(135deg, accent-light, accent-main)`   | `--color-inverse`            | —                                       |
 | hover    | `linear-gradient(135deg, #C4828F, #B46B79)`            | `--color-inverse`            | —                                       |
 | focus    | `linear-gradient(135deg, accent-light, accent-main)`   | `--color-inverse`            | `0 0 0 2px var(--color-accent-deep)`    |
@@ -75,7 +75,7 @@ Icon-only: `padding: 9px` (md), квадратна форма.
 Головна дія на кольорових поверхнях (pink card, forest bg).
 
 | Стан     | background                  | color                       | box-shadow                                                      |
-|----------|-----------------------------|-----------------------------|------------------------------------------------------------------|
+|----------|------------------------------|-----------------------------|--------------------------------------------------------------------|
 | default  | `--color-inverse`           | `--color-accent-main`       | —                                                                |
 | hover    | `#F5F3F4`                   | `#B46B79`                   | —                                                                |
 | focus    | `--color-inverse`           | `--color-accent-main`       | `0 0 0 2px rgba(255,255,255,.6)`                                 |
@@ -89,7 +89,7 @@ Icon-only: `padding: 9px` (md), квадратна форма.
 Додаткова дія на кольорових поверхнях. Frosted glass.
 
 | Стан     | background                    | color                         | box-shadow (inset)                                                    |
-|----------|-------------------------------|-------------------------------|-----------------------------------------------------------------------|
+|----------|--------------------------------|---------------------------------|-----------------------------------------------------------------------|
 | default  | `--color-inverse-muted-1`     | `--color-inverse`             | `inset 0 0 0 0.5px --color-inverse-muted-3`                          |
 | hover    | `--color-inverse-muted-2`     | `--color-inverse`             | `inset 0 0 0 0.5px --color-inverse-muted-4`                          |
 | focus    | `--color-inverse-muted-1`     | `--color-inverse`             | `inset 0 0 0 0.5px --color-inverse-muted-3, 0 0 0 2px rgba(255,255,255,.3)` |
@@ -103,7 +103,7 @@ Icon-only: `padding: 9px` (md), квадратна форма.
 Навігація, скасування. На page-bg.
 
 | Стан     | background                    | color                         | box-shadow                                                                    |
-|----------|-------------------------------|-------------------------------|-------------------------------------------------------------------------------|
+|----------|--------------------------------|---------------------------------|---------------------------------------------------------------------------------|
 | default  | `transparent`                 | `--color-secondary`           | `inset 0 0 0 0.5px --color-secondary-border`                                 |
 | hover    | `rgba(122,136,120,.1)`        | `--color-secondary-border`    | `inset 0 0 0 0.5px --color-secondary-border`                                 |
 | focus    | `transparent`                 | `--color-secondary-border`    | `inset 0 0 0 0.5px --color-secondary-border, 0 0 0 2px rgba(122,136,120,.25)` |
@@ -119,7 +119,7 @@ Ghost loading: shimmer через `::after` з `position: absolute; inset: 0; ov
 Деструктивна дія.
 
 | Стан     | background                                          | color                     | box-shadow                               |
-|----------|-----------------------------------------------------|---------------------------|------------------------------------------|
+|----------|-------------------------------------------------------|------------------------------|------------------------------------------|
 | default  | `linear-gradient(135deg, #BF3D52, #A02840)`         | `--color-inverse`         | —                                        |
 | hover    | `linear-gradient(135deg, #A02840, #841A2E)`         | `--color-inverse`         | —                                        |
 | focus    | `linear-gradient(135deg, #BF3D52, #A02840)`         | `--color-inverse`         | `0 0 0 2px rgba(191,61,82,0.35)`         |
@@ -135,7 +135,7 @@ Tertiary-дія без візуального навантаження. "Про�
 Не має loading і failure станів.
 
 | Стан     | background    | color                     | box-shadow                            |
-|----------|----------------|---------------------------|----------------------------------------|
+|----------|-----------------|-----------------------------|------------------------------------------|
 | default  | `transparent`  | `--color-text-secondary`  | —                                      |
 | hover    | `transparent`  | `--color-text-accent`     | —                                      |
 | focus    | `transparent`  | `--color-text-accent`     | `0 0 0 2px var(--color-accent-deep)`   |
@@ -221,15 +221,14 @@ Loading: `color: transparent` — ховає текст зберігаючи р�
 ## Файлова структура
 
 ```
-src/
-  components/
-    ui/
-      Button/
-        Button.tsx          — компонент, props, варіанти
-        Button.module.css   — стилі всіх варіантів і станів
-        index.ts            — re-export
-  app/
-    globals.css             — додати токени вище в @theme
+components/
+  ui/
+    Button/
+      Button.tsx          — компонент, props, варіанти
+      Button.module.css   — стилі всіх варіантів і станів
+      index.ts            — re-export
+app/
+  globals.css             — додати токени вище в @theme
 ```
 
 ### Button.tsx — відповідальність
