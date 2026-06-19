@@ -221,40 +221,81 @@
 
 ## Loading стани
 
-### Skeleton з shimmer
-Використовується як `fallback` в React `<Suspense>`.
-Показується рідко завдяки Next.js Server Components streaming.
+### Архітектура завантаження — три рівні
+
+Skeleton — Suspense fallback останньої надії, не основна UX-стратегія.
+Більшість loading-ситуацій вирішуються раніше:
+
+| Рівень | Механізм | Loading state |
+|--------|----------|---------------|
+| 1. Повторні візити | TanStack Query `staleTime` / cache | немає — дані вже є |
+| 2. Навігація | `queryClient.prefetchQuery` при hover на посилання | немає — дані вже є |
+| 3. Зміна фільтрів | `placeholderData: keepPreviousData` | opacity 0.6 на гріді + progress bar |
+| 4. Cold first load, повільна мережа | React `<Suspense fallback>` | `CatalogGridSkeleton` |
+
+Skeleton показується тільки на рівні 4 — рідко.
+
+---
+
+### Рівень 3: Зміна фільтрів — keepPreviousData
+
+При зміні фільтрів skeleton не показується. Старі результати лишаються видимими поки нові грузяться.
+
+```tsx
+const { data, isFetching } = useQuery({
+  queryKey: ['catalog', filters],
+  queryFn: () => fetchListings(filters),
+  placeholderData: keepPreviousData,
+  staleTime: 30_000,
+})
+```
+
+Pending state на гріді:
 
 ```css
-@keyframes shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position:  400px 0; }
-}
-
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--color-base-warm) 25%,
-    var(--color-neutral-sand) 50%,
-    var(--color-base-warm) 75%
-  );
-  background-size: 800px 100%;
-  animation: shimmer 1.4s infinite linear;
-  border-radius: var(--radius-md);
+.grid[data-pending='true'] {
+  opacity: 0.6;
+  pointer-events: none;
+  transition: opacity var(--duration-base) var(--easing-base);
 }
 ```
 
-**Варіанти skeleton:**
-- `PlantCard` skeleton — фото блок + 3 лінії тексту
-- `PlantDetails` skeleton — ліва колонка + права колонка
-- `OrderItem` skeleton — маленьке фото + 2 лінії
-- `ProfileHeader` skeleton — круг аватара + 2 лінії
+Count у toolbar при `isFetching`: замінюється на `...` замість числа.
+Progress bar під toolbar (той самий `--color-accent-dusty`, 2px) показується при `isFetching`.
+
+---
+
+### Рівень 4: Skeleton — Suspense fallback
+
+Shimmer анімація. Токени в `globals.css` в секції `=== SKELETON ===`:
+
+| Токен | Значення |
+|-------|----------|
+| `--skeleton-bg-base` | `rgba(195, 206, 193, 0.70)` |
+| `--skeleton-bg-highlight` | `rgba(232, 238, 230, 0.90)` |
+| `--skeleton-duration` | `1.5s` |
+
+`@keyframes` і CSS — тільки в `Skeleton.module.css`, не в globals.
+
+Компоненти:
+- `ui/Skeleton` — primitive з `shape: 'rect' | 'circle' | 'text'`, spec: `design/skeleton-spec.md`
+- `features/catalog/CatalogGridSkeleton` — Suspense fallback для каталогу, 4 картки
+
+Інші skeleton-и (`PlantDetails`, `ProfileHeader`, `OrderItem`) — окремі сесії при реалізації відповідних сторінок.
+
+Використання в каталозі:
+
+```tsx
+<Suspense fallback={<CatalogGridSkeleton />}>
+  <CatalogGrid />
+</Suspense>
+```
 
 ---
 
 ### Page-level loading
-`loading.js` в Next.js App Router — автоматичний.
-Progress bar у хедері під час навігації між сторінками.
+
+Progress bar у хедері при навігації між сторінками (router-level):
 
 ```css
 @keyframes page-progress {
@@ -277,36 +318,10 @@ Progress bar у хедері під час навігації між сторі�
 
 ---
 
-### useTransition — inline async дії
-Для фільтрів, wishlist, swap, будь-яких дій що не є навігацією.
-UI не блокується — кнопка залишається активною.
-
-```tsx
-const [isPending, startTransition] = useTransition()
-
-const handleFilter = () => {
-  startTransition(async () => {
-    const res = await fetchPlants(filters)
-    setPlants(res)
-  })
-}
-
-return (
-  <button disabled={isPending}>
-    {isPending
-      ? <Spinner size="sm" />
-      : 'Застосувати фільтр'
-    }
-  </button>
-)
-```
-
-**Правило:** `useTransition` скрізь де є async дія без зміни URL. `loading.js` — тільки для навігації між сторінками.
-
----
-
 ### Button loading стан
-Для submit кнопок (checkout, signup, збереження форми).
+
+Для submit кнопок (checkout, signup, збереження форми):
+
 ```tsx
 <Button disabled={isPending}>
   {isPending
@@ -318,9 +333,30 @@ return (
 
 ---
 
+### useTransition — inline async дії (не фільтри каталогу)
+
+Для wishlist, swap, будь-яких inline-мутацій без зміни URL.
+Не для фільтрів каталогу — там `keepPreviousData`.
+
+```tsx
+const [isPending, startTransition] = useTransition()
+
+const handleWishlist = () => {
+  startTransition(async () => {
+    await toggleWishlist(listingId)
+  })
+}
+```
+
+UI не блокується — кнопка залишається активною, `aria-busy="true"`.
+
+---
+
 ## Що не робимо
 
-- Глобальний spinner/overlay — замінено на `useTransition` + skeleton
+- Глобальний spinner/overlay для завантаження каталогу
+- Skeleton при зміні фільтрів — `keepPreviousData` вирішує це краще
+- `useTransition` для фільтрів каталогу — це клієнтська мутація, не server action
 - Анімації що тривають довше `400ms` для UI елементів
 - Hover анімації на `sm` і `md`
 - `transition: all` — завжди перераховуємо конкретні властивості

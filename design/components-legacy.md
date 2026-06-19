@@ -498,11 +498,15 @@ Sticky іконка фільтра внизу каталогу.
 ---
 
 ### Skeleton
-Loading стан компонентів під час завантаження даних.
+Suspense fallback для cold first load. Детальна специфікація — `design/skeleton-spec.md`.
 
-**Варіанти:** PlantCard skeleton · PlantDetails skeleton
+**Компоненти:**
+- `ui/Skeleton` — primitive (`shape: rect | circle | text`)
+- `features/catalog/CatalogGridSkeleton` — 4 картки, Suspense fallback каталогу
 
-**Правила:**
-- Анімація: pulse (opacity 1 → 0.5 → 1)
-- Background: `var(--color-neutral-sand)`
-- Border radius відповідає реальному компоненту
+**Коли показується:** тільки cold first load + повільна мережа.
+**Коли не показується:** зміна фільтрів (`keepPreviousData`), повторні візити (cache).
+
+**Анімація:** shimmer. Токени: `--skeleton-bg-base`, `--skeleton-bg-highlight`, `--skeleton-duration`.
+
+Skeleton для `PlantDetails`, `ProfileHeader`, `OrderItem` — реалізуються разом з відповідними сторінками.
