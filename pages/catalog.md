@@ -57,7 +57,8 @@
 **Правила:**
 - Infinite scroll або пагінація — рішення після MVP
 - Empty state якщо немає результатів: компонент `EmptyState`
-- Skeleton при завантаженні: компонент `Skeleton`
+- Cold first load + повільна мережа → `<Suspense fallback={<CatalogGridSkeleton />}>` навколо `CatalogGrid`
+- Зміна фільтрів → `keepPreviousData` (старі результати лишаються, grid отримує `data-pending="true"`)
 
 ---
 
@@ -77,12 +78,15 @@ Sticky іконка фільтра внизу екрану.
 
 ## Стани сторінки
 
-| Стан | Поведінка |
-|------|-----------|
-| Завантаження | Skeleton грід |
-| Результати є | Грід з PlantCard |
-| Результати відсутні | EmptyState з CTA "Скинути фільтри" |
-| Фільтри активні | Toolbar показує активні chips |
+| Стан | Тригер | Поведінка |
+|------|--------|-----------|
+| Cold first load, швидка мережа | перший запит, дані вже готові | грід рендериться без Skeleton |
+| Cold first load, повільна мережа | перший запит іще не завершено | `CatalogGridSkeleton` (Suspense fallback) |
+| Зміна фільтрів | user змінив фільтр | старі картки + opacity 0.6 + progress bar |
+| Результати є | запит завершено | грід з PlantCard |
+| Результати відсутні | 0 результатів | EmptyState + CTA "Скинути фільтри" |
+| Фільтри активні | будь-які активні фільтри | Toolbar показує активні chips |
+| Повторний візит | дані є в TanStack Query cache | грід одразу, без loading state |
 
 ---
 

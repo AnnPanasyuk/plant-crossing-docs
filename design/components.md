@@ -23,7 +23,7 @@
 | Tooltip | `tooltip-spec.md` | ✅ |
 | Divider | — | — |
 | Toast | — | — |
-| Skeleton | — | — |
+| Skeleton | `skeleton-spec.md` | ✅ |
 
 ---
 
