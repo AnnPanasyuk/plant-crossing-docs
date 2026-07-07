@@ -32,7 +32,14 @@
 
 ## Реєстрація
 
-Обов'язкові поля: ім'я, фото, місто, email.
+Обов'язкові поля: ім'я, фото, місто, email, **Telegram username або Instagram handle
+(хоча б одне з двох)**.
+
+<!--
+  ВИПРАВЛЕНО: попередня версія не згадувала Telegram/Instagram.
+  auth.md, layout/header.md і components-legacy.md незалежно фіксують це поле
+  як обов'язкове ("хоча б одне") — форма не сабмітиться без нього.
+-->
 
 ## PlantCard
 
@@ -41,7 +48,18 @@
 - `will-change: transform` — на `.card`.
 - Hover ефекти — тільки `@media (hover: hover)`. На touch скидати.
 - Без `box-shadow` на hover.
-- Wishlist кнопка — завжди видима (desktop і mobile), `position: absolute top-right`.
+- Wishlist кнопка:
+  - **desktop** — reveal on hover (з'являється тільки при наведенні на картку)
+  - **mobile** — завжди видима, `position: absolute top-right`
+
+<!--
+  ВИПРАВЛЕНО: попередня версія казала "завжди видима (desktop і mobile)" —
+  суперечило ux-decisions.md ("hover reveal на десктопі, на мобайлі завжди
+  видима") і layout/grid.md (таблиця PlantCardActions: mobile — завжди видима,
+  desktop — reveal on hover). Обидва незалежні джерела узгоджені між собою,
+  тому виправлено на їхню версію. Якщо в коді PlantCard зараз реалізовано
+  інакше — звірити з `PlantCard.module.css` перед тим як вважати це фінальним.
+-->
 
 ## Feedback
 
