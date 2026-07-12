@@ -120,7 +120,6 @@ Variant: `ghost`. Текст: `← Назад до каталогу`.
 | `RESERVED` | "Зараз в процесі передачі. Якщо угода не відбудеться — рослина знову з'явиться." | warning |
 | `COMPLETED` | "Рослина вже знайшла новий дім 🌿" + CTA "Переглянути схожі" | success |
 | `ARCHIVED` | "Оголошення знято з публікації." | neutral |
-| `DRAFT` | "Це чернетка. Тільки ти її бачиш." + CTA "Опублікувати" | neutral |
 
 ### 3. InfoCard `card-white`
 - Назва: `font-size: 20px; font-weight: 500`
@@ -255,7 +254,6 @@ font-weight: 400; /* для всіх variant, крім primary */
 | `RESERVED` | StatusBanner + CTA disabled |
 | `COMPLETED` | StatusBanner + CTA приховані |
 | `ARCHIVED` | StatusBanner + CTA приховані |
-| `DRAFT` | StatusBanner + CTA "Опублікувати" |
 | Конфлікт stock | Toast при checkout |
 | Не знайдено | EmptyState + кнопка "До каталогу" |
 
