@@ -19,7 +19,6 @@ URL оголошення (`/listings/[id]`) — permanent. Ніколи не в�
 
 ```prisma
 enum ListingStatus {
-  DRAFT       // чернетка, не опублікована
   ACTIVE      // активне, доступне в каталозі
   RESERVED    // заблоковане на час активної транзакції
   COMPLETED   // рослина передана, угода завершена
@@ -30,7 +29,6 @@ enum ListingStatus {
 ### Transition map
 
 ```
-DRAFT → ACTIVE
 ACTIVE → RESERVED        (при старті purchase або swap flow)
 ACTIVE → ARCHIVED        (власник знімає оголошення)
 RESERVED → ACTIVE        (транзакція скасована або TTL вичерпано)
@@ -43,7 +41,6 @@ ARCHIVED → ACTIVE        (власник повторно публікує)
 
 | Статус | Показується в гріді | Вигляд картки |
 |--------|---------------------|---------------|
-| `DRAFT` | ні | — |
 | `ACTIVE` | так | стандартний |
 | `RESERVED` | так | opacity знижена, ціна замінена на бейдж "Зарезервовано" |
 | `COMPLETED` | ні | — |
@@ -189,7 +186,7 @@ model ActionLog {
 
 Мінімум для Phase 3 (Walking Skeleton):
 
-**ListingStatus:** `DRAFT | ACTIVE | RESERVED | COMPLETED | ARCHIVED`
+**ListingStatus:** `ACTIVE | RESERVED | COMPLETED | ARCHIVED`
 **ExchangeRequestStatus:** `PENDING | ACCEPTED | DECLINED | COMPLETED | CANCELLED`
 
 `OrderStatus` і `DISPUTED` — post-MVP.
